@@ -2,10 +2,20 @@ version: "3.2"
 
 services:
   nginx:
-    container_name: site
     image: bitnami/nginx:latest
+    container_name: site
     ports:
       - 80:8080
     volumes:
       - ./docker/nginx/site.conf:/opt/bitnami/nginx/conf/server_blocks/site.conf:ro
       - ./app:/app
+    links:
+      - "phpfpm"
+
+  phpfpm:
+    image: bitnami/php-fpm:latest
+    container_name: phpfpm
+    volumes: 
+      - ./app:/app
+      - ./docker/php-fpm/custom-php.ini:/opt/bitnami/php/etc/conf.d/custom-php.ini
+      - ./docker/php-fpm/custom-phpfpm.conf:/opt/bitnami/php/etc/php-fpm.d/phpfpm.conf
