@@ -1,12 +1,15 @@
-# Centralize your logs
+# **Centralize your service logs**
 
-Using an external application **(Visual Syslog Server)** to centralize the logs in a single location, facilitating the search and collection of these logs.
+## **Nginx**
+Here we have some options, you can use the default feature that nginx has to send to syslog, or use the driver provided by docker, the following example uses nginx's own feature, in case that first method doesn't work to you, in the example used for PHP you can also use in your nginx as it is a docker feature.
+
+Using an external application **(Visual Syslog Server)** to centralize your logs, facilitating the search and collection of these logs.
 
 * Create your service.
 * Download the Syslog application. [link](https://maxbelkov.github.io/visualsyslog/)
 * Install and run.
 
-Having everything ready, now just direct the logs to the application, there are two ways, if you are on another network, you will need to direct to your ``.conf`` the direct IP of the network to which the syslog is connected.
+Having everything ready, now just direct the logs to the application, there are two ways, if you are on another network, you will need to direct your ``.conf`` the direct IP of the network to which the syslog is connected.
 
 [site.conf](docker/nginx/site.conf)
 ```sh
@@ -48,3 +51,34 @@ Now your logs should be arriving in the application, by default in *tag*, the se
 
 ![syslog](docker/img/syslog.png)
 
+#
+
+## **PHP-FPM and OTHERS**
+
+Remember this configuration may be a solution for other services, Nginx and PHP-FPM are just examples used to extract your logs.
+
+You should follow some steps, start by adding the following lines in your PHP-FPM in [docker-compose.yml](docker-compose.yml) <= check the original file.
+
+```sh
+...
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://1.1.1.1:514"
+        syslog-format: rfc3164
+        tag: php
+...
+```
+
+Moving on to the next step, in your PHP `.conf`
+[custom-phpfpm.conf](docker/php-fpm/custom-phpfpm.conf) you will need to add the following instructions.
+
+ ```ini
+[global]
+error_log = /proc/self/fd/2
+
+[www]
+access.log = /proc/self/fd/2
+ ```
+
+Now your logs should be centered correctly.
