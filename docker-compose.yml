@@ -19,3 +19,9 @@ services:
       - ./app:/app
       - ./docker/php-fpm/custom-php.ini:/opt/bitnami/php/etc/conf.d/custom-php.ini
       - ./docker/php-fpm/custom-phpfpm.conf:/opt/bitnami/php/etc/php-fpm.d/phpfpm.conf
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://1.1.1.1:514"
+        syslog-format: rfc3164
+        tag: php
